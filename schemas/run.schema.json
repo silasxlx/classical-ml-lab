@@ -42,7 +42,15 @@
         "additionalProperties": false,
         "required": ["id", "status", "metrics_path", "figures"],
         "properties": {
-          "id": { "enum": ["decision-tree", "random-forest", "adaboost", "svm"] },
+          "id": {
+            "enum": [
+              "decision-tree",
+              "random-forest",
+              "adaboost",
+              "svm",
+              "logistic-regression"
+            ]
+          },
           "status": { "const": "success" },
           "metrics_path": { "type": "string", "pattern": "^experiments/" },
           "figures": {

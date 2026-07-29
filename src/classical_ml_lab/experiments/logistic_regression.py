@@ -1,4 +1,4 @@
-"""Leakage-safe random-forest tuning on synthetic or local credit data."""
+"""Leakage-safe logistic-regression tuning on synthetic or local credit data."""
 
 from __future__ import annotations
 
@@ -11,29 +11,34 @@ matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.impute import SimpleImputer
+from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV, StratifiedKFold
 from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
 
 from classical_ml_lab.experiments.common import load_credit_dataset, stratified_split
 from classical_ml_lab.metrics import compute_binary_metrics
 from classical_ml_lab.models import ExperimentResult
 
+_C_GRID = [0.1, 1.0, 10.0]
 
-def build_random_forest_search(seed: int) -> GridSearchCV:
-    """Build a small, deterministic search whose preprocessing stays inside CV."""
+
+def build_logistic_regression_search(seed: int) -> GridSearchCV:
+    """Build the public, deterministic search with preprocessing inside CV."""
 
     pipeline = Pipeline(
         steps=[
             ("impute", SimpleImputer(strategy="median")),
+            ("scale", StandardScaler()),
             (
                 "classifier",
-                RandomForestClassifier(
-                    n_estimators=80,
+                LogisticRegression(
+                    solver="liblinear",
+                    penalty="l2",
                     class_weight="balanced",
+                    max_iter=1000,
                     random_state=seed,
-                    n_jobs=1,
                 ),
             ),
         ]
@@ -41,10 +46,7 @@ def build_random_forest_search(seed: int) -> GridSearchCV:
     folds = StratifiedKFold(n_splits=3, shuffle=True, random_state=seed)
     return GridSearchCV(
         pipeline,
-        param_grid={
-            "classifier__max_depth": [5, None],
-            "classifier__min_samples_leaf": [1, 4],
-        },
+        param_grid={"classifier__C": _C_GRID},
         scoring="roc_auc",
         cv=folds,
         n_jobs=1,
@@ -52,31 +54,35 @@ def build_random_forest_search(seed: int) -> GridSearchCV:
     )
 
 
-def run_random_forest(
+def run_logistic_regression(
     *, seed: int, output_dir: Path, dataset: str = "synthetic", data_path: Path | None = None
 ) -> ExperimentResult:
-    """Tune and evaluate random forest without exposing the final holdout to CV."""
+    """Tune and evaluate logistic regression on one untouched stratified holdout."""
 
     bundle = load_credit_dataset(dataset, data_path, seed)
     train_x, test_x, train_y, test_y, split = stratified_split(bundle, seed)
-    search = build_random_forest_search(seed)
+    search = build_logistic_regression_search(seed)
     search.fit(train_x, train_y)
     predicted = search.predict(test_x)
     scores = search.predict_proba(test_x)[:, 1]
     evaluated = compute_binary_metrics(test_y, predicted, scores)
 
     fitted_pipeline: Pipeline = search.best_estimator_
-    classifier: RandomForestClassifier = fitted_pipeline.named_steps["classifier"]
-    order = np.argsort(classifier.feature_importances_)[-10:]
+    classifier: LogisticRegression = fitted_pipeline.named_steps["classifier"]
+    coefficients = classifier.coef_[0]
+    order = np.argsort(coefficients)
     labels = bundle.features.columns.to_numpy()[order]
-    values = classifier.feature_importances_[order]
+    values = coefficients[order]
+    colors = np.where(values >= 0, "#2e7d32", "#c62828")
+
     figures_dir = output_dir / "figures"
     figures_dir.mkdir(parents=True, exist_ok=True)
-    figure_path = figures_dir / "feature-importance.png"
-    figure, axis = plt.subplots(figsize=(9, 6))
-    axis.barh(labels, values)
-    axis.set_title("Random forest feature importances")
-    axis.set_xlabel("Importance")
+    figure_path = figures_dir / "coefficients.png"
+    figure, axis = plt.subplots(figsize=(10, 6))
+    axis.barh(labels, values, color=colors)
+    axis.axvline(0.0, color="black", linewidth=0.8)
+    axis.set_title("Logistic regression standardized feature coefficients")
+    axis.set_xlabel("Signed coefficient")
     figure.tight_layout()
     figure.savefig(figure_path, dpi=140)
     plt.close(figure)
@@ -84,8 +90,9 @@ def run_random_forest(
     best_params: dict[str, Any] = {
         key.removeprefix("classifier__"): value for key, value in search.best_params_.items()
     }
+    selected_c = float(best_params["C"])
     return ExperimentResult(
-        experiment="random-forest",
+        experiment="logistic-regression",
         task=bundle.task,
         dataset_name=bundle.name,
         dataset_source=bundle.source,
@@ -98,8 +105,21 @@ def run_random_forest(
             "folds": 3,
             "scoring": "roc_auc",
             "best_score": float(search.best_score_),
-            "best_params": best_params,
+            "best_params": {"C": selected_c},
         },
-        config={"dataset": dataset, "n_estimators": 80, "grid": best_params},
-        figures=("figures/feature-importance.png",),
+        config={
+            "dataset": dataset,
+            "pipeline": ["SimpleImputer", "StandardScaler", "LogisticRegression"],
+            "imputer": {"strategy": "median"},
+            "classifier": {
+                "solver": "liblinear",
+                "penalty": "l2",
+                "class_weight": "balanced",
+                "max_iter": 1000,
+                "random_state": seed,
+            },
+            "grid": {"C": _C_GRID},
+            "selected": {"C": selected_c},
+        },
+        figures=("figures/coefficients.png",),
     )

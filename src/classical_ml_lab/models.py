@@ -62,4 +62,5 @@ class ExperimentResult:
             "metrics": self.metrics,
             "confusion_matrix": self.confusion_matrix,
             "cross_validation": self.cross_validation,
+            "config": self.config,
         }

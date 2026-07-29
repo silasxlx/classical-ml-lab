@@ -2,12 +2,29 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
+from classical_ml_lab.data import load_credit_csv, make_synthetic_credit
+from classical_ml_lab.errors import InputValidationError
 from classical_ml_lab.models import DatasetBundle
+
+
+def load_credit_dataset(dataset: str, data_path: Path | None, seed: int) -> DatasetBundle:
+    """Resolve a supported offline or explicitly supplied local credit dataset."""
+
+    if dataset == "synthetic":
+        if data_path is not None:
+            raise InputValidationError("--data-path is only valid with --dataset credit.")
+        return make_synthetic_credit(seed)
+    if dataset == "credit":
+        if data_path is None:
+            raise InputValidationError("--data-path is required with --dataset credit.")
+        return load_credit_csv(data_path)
+    raise InputValidationError("Dataset must be 'synthetic' or 'credit'.")
 
 
 def stratified_split(

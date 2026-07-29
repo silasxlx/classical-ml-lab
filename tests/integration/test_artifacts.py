@@ -25,7 +25,13 @@ def test_all_experiments_produce_schema_valid_auditable_artifacts(tmp_path: Path
     assert manifest["status"] == "success"
     experiments = manifest["experiments"]
     assert isinstance(experiments, list)
-    assert len(experiments) == 4
+    assert [item["id"] for item in experiments] == [
+        "decision-tree",
+        "random-forest",
+        "adaboost",
+        "svm",
+        "logistic-regression",
+    ]
     for experiment in experiments:
         assert isinstance(experiment, dict)
         metrics_path = run_dir / str(experiment["metrics_path"])
@@ -35,6 +41,42 @@ def test_all_experiments_produce_schema_valid_auditable_artifacts(tmp_path: Path
             assert figure.is_file()
             assert figure.stat().st_size > 0
             assert figure.resolve().is_relative_to(run_dir.resolve())
+    random_forest = _load_json(
+        run_dir / "experiments" / "random-forest" / "metrics.json"
+    )
+    logistic_regression = _load_json(
+        run_dir / "experiments" / "logistic-regression" / "metrics.json"
+    )
+    assert random_forest["dataset"] == logistic_regression["dataset"]
+
+
+@pytest.mark.integration
+def test_v1_metrics_without_the_v11_config_addition_remain_schema_valid(tmp_path: Path) -> None:
+    run_dir = run_experiments("svm", seed=42, output_dir=tmp_path)
+    metrics = _load_json(run_dir / "experiments" / "svm" / "metrics.json")
+    metrics.pop("config")
+    metrics_schema = _load_json(PROJECT_ROOT / "schemas" / "metrics.schema.json")
+    Draft202012Validator(metrics_schema).validate(metrics)
+
+
+@pytest.mark.integration
+def test_all_uses_the_same_local_credit_data_for_both_supported_models(
+    tmp_path: Path, credit_csv: Path
+) -> None:
+    run_dir = run_experiments(
+        "all",
+        seed=42,
+        output_dir=tmp_path / "artifacts",
+        dataset="credit",
+        data_path=credit_csv,
+    )
+    random_forest = _load_json(
+        run_dir / "experiments" / "random-forest" / "metrics.json"
+    )
+    logistic_regression = _load_json(
+        run_dir / "experiments" / "logistic-regression" / "metrics.json"
+    )
+    assert random_forest["dataset"] == logistic_regression["dataset"]
 
 
 @pytest.mark.integration
