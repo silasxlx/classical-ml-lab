@@ -18,18 +18,22 @@ from classical_ml_lab.artifacts import (
 )
 from classical_ml_lab.errors import InputValidationError, LabError
 from classical_ml_lab.experiments import (
+    CORE_EXPERIMENT_IDS,
     DATASET_EXPERIMENT_IDS,
     EXPERIMENT_IDS,
     EXPERIMENT_RUNNERS,
+    OPTIONAL_EXPERIMENT_IDS,
 )
 from classical_ml_lab.models import RunResult
 
 
 def _selection(experiment: str) -> tuple[str, ...]:
     if experiment == "all":
-        return EXPERIMENT_IDS
+        return CORE_EXPERIMENT_IDS
+    if experiment == "boosting-all":
+        return OPTIONAL_EXPERIMENT_IDS
     if experiment not in EXPERIMENT_RUNNERS:
-        allowed = ", ".join((*EXPERIMENT_IDS, "all"))
+        allowed = ", ".join((*EXPERIMENT_IDS, "all", "boosting-all"))
         raise InputValidationError(f"Unknown experiment {experiment!r}. Choose one of: {allowed}.")
     return (experiment,)
 
@@ -41,7 +45,7 @@ def _validate_options(
         raise InputValidationError("Seed must be between 0 and 4294967295.")
     if (
         experiment not in DATASET_EXPERIMENT_IDS
-        and experiment != "all"
+        and experiment not in {"all", "boosting-all"}
         and (dataset is not None or data_path is not None)
     ):
         raise InputValidationError(
@@ -115,6 +119,10 @@ def run_experiments(
                 data_path=data_path,
             )
             write_json(experiment_dir / "metrics.json", result.to_metrics_payload())
+            write_json(experiment_dir / "data-quality.json", result.data_quality)
+            explanation = getattr(result, "explanation", None)
+            if explanation is not None:
+                write_json(experiment_dir / "explanations.json", explanation)
             results.append(result)
 
         digest = config_hash(_hash_input(seed=seed, selection=selected, results=results))

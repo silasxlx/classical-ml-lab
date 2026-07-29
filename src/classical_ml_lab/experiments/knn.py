@@ -9,6 +9,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
 from classical_ml_lab.data import load_iris_multiclass
+from classical_ml_lab.data_quality import create_data_quality_artifact
 from classical_ml_lab.experiments.common import stratified_split
 from classical_ml_lab.experiments.visualization import save_confusion_matrix_figure
 from classical_ml_lab.metrics import compute_multiclass_metrics
@@ -40,6 +41,7 @@ def run_knn(*, seed: int, output_dir: Path) -> ExperimentResult:
     """Train and evaluate the fixed scaled KNN experiment."""
 
     bundle = load_iris_multiclass()
+    quality = create_data_quality_artifact(bundle, output_dir=output_dir)
     train_x, test_x, train_y, test_y, split = stratified_split(bundle, seed)
     model = build_knn_pipeline()
     model.fit(train_x, train_y)
@@ -69,5 +71,6 @@ def run_knn(*, seed: int, output_dir: Path) -> ExperimentResult:
             "metric": "minkowski",
             "p": 2,
         },
-        figures=(figure_path,),
+        figures=(figure_path, quality.figure_path),
+        data_quality=quality.payload,
     )

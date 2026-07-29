@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/silasxlx/classical-ml-lab/schemas/data-quality.schema.json",
+  "title": "classical-ml-lab aggregate data-quality report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "dataset", "task", "shape", "duplicate_rows", "columns", "target", "warnings"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "dataset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "source", "fingerprint"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "source": { "type": "string", "minLength": 1 },
+        "fingerprint": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+      }
+    },
+    "task": {
+      "enum": ["binary_classification", "multiclass_classification", "clustering", "regression"]
+    },
+    "shape": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["samples", "features"],
+      "properties": {
+        "samples": { "type": "integer", "minimum": 1 },
+        "features": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "duplicate_rows": { "type": "integer", "minimum": 0 },
+    "columns": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "dtype", "missing_count", "missing_rate", "non_finite_count", "unique_count", "constant", "summary", "iqr_outlier_count"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "dtype": { "type": "string", "minLength": 1 },
+          "missing_count": { "type": "integer", "minimum": 0 },
+          "missing_rate": { "type": "number", "minimum": 0, "maximum": 1 },
+          "non_finite_count": { "type": "integer", "minimum": 0 },
+          "unique_count": { "type": "integer", "minimum": 0 },
+          "constant": { "type": "boolean" },
+          "summary": {
+            "oneOf": [
+              { "type": "null" },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["min", "q1", "median", "q3", "max"],
+                "properties": {
+                  "min": { "type": "number" },
+                  "q1": { "type": "number" },
+                  "median": { "type": "number" },
+                  "q3": { "type": "number" },
+                  "max": { "type": "number" }
+                }
+              }
+            ]
+          },
+          "iqr_outlier_count": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "target": {
+      "type": "object",
+      "required": ["name", "dtype", "usage", "missing_count", "unique_count"],
+      "properties": {
+        "name": { "type": "string" },
+        "dtype": { "type": "string" },
+        "usage": { "enum": ["training", "evaluation_only"] },
+        "missing_count": { "type": "integer", "minimum": 0 },
+        "unique_count": { "type": "integer", "minimum": 0 },
+        "summary": { "type": ["object", "null"] },
+        "class_counts": { "type": "object" }
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": ["missing_values", "non_finite_values", "constant_columns", "iqr_outliers", "duplicate_rows"]
+      }
+    }
+  }
+}

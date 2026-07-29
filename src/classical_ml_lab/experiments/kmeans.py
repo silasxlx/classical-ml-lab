@@ -16,6 +16,7 @@ from sklearn.preprocessing import StandardScaler
 
 from classical_ml_lab.clustering_metrics import compute_clustering_metrics
 from classical_ml_lab.data import load_iris_multiclass
+from classical_ml_lab.data_quality import create_data_quality_artifact
 from classical_ml_lab.models import ClusteringExperimentResult
 
 _N_CLUSTERS = 3
@@ -39,6 +40,9 @@ def run_kmeans(*, seed: int, output_dir: Path) -> ClusteringExperimentResult:
     """Fit KMeans without target labels and evaluate the resulting partition."""
 
     bundle = load_iris_multiclass()
+    quality = create_data_quality_artifact(
+        bundle, output_dir=output_dir, target_usage="evaluation_only"
+    )
     model = build_kmeans_pipeline(seed)
     assigned = np.asarray(model.fit_predict(bundle.features), dtype=int)
     scaler: StandardScaler = model.named_steps["scale"]
@@ -106,5 +110,6 @@ def run_kmeans(*, seed: int, output_dir: Path) -> ClusteringExperimentResult:
             "random_state": seed,
             "reference_labels_usage": "evaluation_only",
         },
-        figures=("figures/clusters.png",),
+        figures=("figures/clusters.png", quality.figure_path),
+        data_quality=quality.payload,
     )

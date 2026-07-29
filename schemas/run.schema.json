@@ -32,7 +32,18 @@
         "python": { "type": "string" },
         "platform": { "enum": ["windows", "linux", "darwin"] },
         "package_version": { "type": "string" },
-        "scikit_learn": { "type": "string" }
+        "scikit_learn": { "type": "string" },
+        "optional_libraries": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": false,
+          "properties": {
+            "xgboost": { "type": "string" },
+            "lightgbm": { "type": "string" },
+            "catboost": { "type": "string" },
+            "shap": { "type": "string" }
+          }
+        }
       }
     },
     "experiments": {
@@ -51,11 +62,23 @@
               "logistic-regression",
               "knn",
               "naive-bayes",
-              "kmeans"
+              "kmeans",
+              "ridge-regression",
+              "xgboost-regression",
+              "lightgbm-regression",
+              "catboost-regression"
             ]
           },
           "status": { "const": "success" },
           "metrics_path": { "type": "string", "pattern": "^experiments/" },
+          "data_quality_path": {
+            "type": "string",
+            "pattern": "^experiments/.+/data-quality\\.json$"
+          },
+          "explanation_path": {
+            "type": "string",
+            "pattern": "^experiments/.+/explanations\\.json$"
+          },
           "figures": {
             "type": "array",
             "minItems": 1,

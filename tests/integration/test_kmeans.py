@@ -69,7 +69,7 @@ def test_kmeans_writes_true_clustering_metrics_sizes_and_projection(tmp_path: Pa
     assert min(result.cluster_sizes) > 0
     assert sum(result.cluster_sizes) == 150
     assert result.config["reference_labels_usage"] == "evaluation_only"
-    assert result.figures == ("figures/clusters.png",)
+    assert result.figures == ("figures/clusters.png", "figures/data-quality.png")
     assert (tmp_path / result.figures[0]).stat().st_size > 0
 
 

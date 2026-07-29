@@ -4,6 +4,28 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-07-29
+
+### Added
+
+- Leakage-safe Ridge regression on scikit-learn's bundled Diabetes dataset.
+- Dedicated regression metrics and artifact schema for MAE, RMSE, and R².
+- Versioned aggregate data-quality JSON and PNG reports for every core experiment.
+- Optional, deterministic CPU XGBoost, LightGBM, and CatBoost regression on Diabetes.
+- Explicit `boosting-all` command for the three optional Boosting regressors.
+- Training-background-isolated global and local Tree SHAP explanations.
+- Versioned, aggregate-safe explanation JSON with an audited additivity residual.
+
+### Changed
+
+- Core `ml-lab run all` now executes nine offline experiments.
+- Package architecture now keeps classification, clustering, and regression contracts separate.
+
+### Security
+
+- Optional dependency failures return an actionable input error without partial artifacts.
+- Explanation artifacts omit complete patient rows, feature values, and local paths.
+
 ## [1.2.0] - 2026-07-29
 
 ### Added
@@ -48,7 +70,8 @@ All notable changes to this project are documented here. The format follows [Kee
 - Added dependency, code, and secret scanning configuration.
 - Added explicit prohibitions on real customer data and high-risk decision use.
 
-[Unreleased]: https://github.com/silasxlx/classical-ml-lab/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/silasxlx/classical-ml-lab/compare/v1.7.0...HEAD
+[1.7.0]: https://github.com/silasxlx/classical-ml-lab/compare/v1.2.0...v1.7.0
 [1.2.0]: https://github.com/silasxlx/classical-ml-lab/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/silasxlx/classical-ml-lab/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/silasxlx/classical-ml-lab/releases/tag/v1.0.0

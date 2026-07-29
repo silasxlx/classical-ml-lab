@@ -25,10 +25,11 @@ def build_parser() -> argparse.ArgumentParser:
     run_parser = commands.add_parser(
         "run",
         help=(
-            "Run one experiment or all experiments. Educational use only; not for credit decisions."
+            "Run one experiment or all experiments. Educational use only; "
+            "not for credit or medical decisions."
         ),
     )
-    run_parser.add_argument("experiment", choices=(*EXPERIMENT_IDS, "all"))
+    run_parser.add_argument("experiment", choices=(*EXPERIMENT_IDS, "all", "boosting-all"))
     run_parser.add_argument("--seed", type=int, default=42, help="Random seed (default: 42).")
     run_parser.add_argument(
         "--output-dir", type=Path, default=Path("artifacts"), help="Artifact root directory."

@@ -107,7 +107,7 @@ def test_req_exp_lr_003_generates_metrics_cv_config_and_coefficients(tmp_path: P
     assert result.config["grid"] == {"C": [0.1, 1.0, 10.0]}
     assert result.config["selected"]["C"] in [0.1, 1.0, 10.0]
     figure = tmp_path / result.figures[0]
-    assert result.figures == ("figures/coefficients.png",)
+    assert result.figures == ("figures/coefficients.png", "figures/data-quality.png")
     assert figure.is_file()
     assert figure.stat().st_size > 0
 

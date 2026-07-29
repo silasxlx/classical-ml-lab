@@ -10,6 +10,7 @@ from classical_ml_lab.data import (
     CREDIT_TARGET,
     load_breast_cancer_binary,
     load_credit_csv,
+    load_diabetes_regression,
     load_iris_binary,
     load_iris_multiclass,
     make_synthetic_credit,
@@ -23,6 +24,13 @@ def test_builtin_and_synthetic_datasets_are_available_offline() -> None:
     assert load_iris_binary().features.shape == (100, 2)
     assert load_breast_cancer_binary().features.shape[1] == 30
     assert make_synthetic_credit(42).features.shape == (1200, 10)
+    diabetes = load_diabetes_regression()
+    assert diabetes.features.shape == (442, 10)
+    assert diabetes.target.shape == (442,)
+    assert diabetes.task == "regression"
+    assert diabetes.source == "sklearn"
+    assert diabetes.fingerprint.startswith("sha256:")
+    assert diabetes.features.abs().max().max() > 1.0
 
 
 @pytest.mark.unit

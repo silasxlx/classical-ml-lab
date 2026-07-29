@@ -108,20 +108,21 @@ def test_version_and_release_policy_use_semver() -> None:
     assert "## [Unreleased]" in changelog
     assert "SemVer" in contributing
     assert 'name = "cz_conventional_commits"' in pyproject
-    assert __version__ == "1.2.0"
-    assert pyproject.count('version = "1.2.0"') == 2
+    assert __version__ == "1.7.0"
+    assert pyproject.count('version = "1.7.0"') == 2
     assert re.search(
-        r'\[\[package\]\]\s+name = "classical-ml-lab"\s+version = "1.2.0"', lockfile
+        r'\[\[package\]\]\s+name = "classical-ml-lab"\s+version = "1.7.0"', lockfile
     )
+    assert "## [1.7.0]" in changelog
     assert "## [1.2.0]" in changelog
     assert "## [1.1.0]" in changelog
 
 
 @pytest.mark.acceptance
-def test_readme_documents_all_eight_experiments() -> None:
+def test_readme_documents_core_and_optional_experiments() -> None:
     readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
     for phrase in (
-        "八个实验",
+        "九个核心实验",
         "Logistic Regression",
         "KNN",
         "Naive Bayes",

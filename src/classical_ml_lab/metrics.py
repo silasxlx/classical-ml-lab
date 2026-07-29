@@ -10,14 +10,17 @@ from sklearn.metrics import (
     balanced_accuracy_score,
     confusion_matrix,
     f1_score,
+    mean_absolute_error,
     precision_score,
+    r2_score,
     recall_score,
     roc_auc_score,
+    root_mean_squared_error,
 )
 from sklearn.preprocessing import label_binarize
 
 from classical_ml_lab.errors import MetricValidationError
-from classical_ml_lab.models import MetricResult
+from classical_ml_lab.models import MetricResult, RegressionMetricResult
 
 
 def _arrays(
@@ -90,3 +93,30 @@ def compute_multiclass_metrics(
     }
     matrix = confusion_matrix(truth, predicted, labels=classes).astype(int).tolist()
     return MetricResult(values=values, confusion_matrix=matrix)
+
+
+def compute_regression_metrics(
+    y_true: npt.ArrayLike, y_pred: npt.ArrayLike
+) -> RegressionMetricResult:
+    """Compute validated metrics for one continuous regression target."""
+
+    truth = np.asarray(y_true, dtype=float)
+    predicted = np.asarray(y_pred, dtype=float)
+    if truth.ndim != 1 or predicted.ndim != 1 or len(truth) != len(predicted):
+        raise MetricValidationError(
+            "Regression targets and predictions must be equal-length vectors."
+        )
+    if len(truth) < 2:
+        raise MetricValidationError("Regression metrics require at least two samples.")
+    if not np.isfinite(truth).all() or not np.isfinite(predicted).all():
+        raise MetricValidationError("Regression targets and predictions must be finite.")
+    if np.unique(truth).size < 2:
+        raise MetricValidationError("Regression metrics do not accept a constant target.")
+    values = {
+        "mae": float(mean_absolute_error(truth, predicted)),
+        "rmse": float(root_mean_squared_error(truth, predicted)),
+        "r2": float(r2_score(truth, predicted)),
+    }
+    if not np.isfinite(list(values.values())).all():
+        raise MetricValidationError("Regression metrics must be finite.")
+    return RegressionMetricResult(values=values)
