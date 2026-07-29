@@ -1,0 +1,108 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "classical-ml-lab"
+version = "1.0.0"
+description = "Reproducible, production-minded classical machine-learning experiments."
+readme = "README.md"
+requires-python = ">=3.11,<3.14"
+license = { file = "LICENSE" }
+authors = [{ name = "Silas" }]
+keywords = ["machine-learning", "scikit-learn", "reproducibility", "education"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+  "matplotlib>=3.8,<4",
+  "numpy>=1.26,<3",
+  "pandas>=2.2,<3",
+  "scikit-learn>=1.5,<1.8",
+]
+
+[project.optional-dependencies]
+dev = [
+  "commitizen>=4.2,<5",
+  "hypothesis>=6.125,<7",
+  "ipykernel>=6.29,<7",
+  "jsonschema>=4.23,<5",
+  "mypy>=1.14,<2",
+  "nbclient>=0.10,<1",
+  "nbformat>=5.10,<6",
+  "pandas-stubs>=2.2,<3",
+  "pip-audit>=2.7,<3",
+  "pytest>=9.0.3,<10",
+  "pytest-cov>=6,<7",
+  "pytest-socket>=0.7,<1",
+  "ruff>=0.9,<1",
+  "vulture>=2.14,<3",
+]
+
+[project.scripts]
+ml-lab = "classical_ml_lab.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/silasxlx/machinelearning-blob"
+Documentation = "https://github.com/silasxlx/machinelearning-blob/tree/main/docs"
+Issues = "https://github.com/silasxlx/machinelearning-blob/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/classical_ml_lab"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+
+[tool.mypy]
+python_version = "3.12"
+files = ["src"]
+disallow_untyped_defs = true
+check_untyped_defs = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+no_implicit_optional = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "--strict-config --strict-markers -ra"
+markers = [
+  "unit: fast isolated tests",
+  "integration: component integration tests",
+  "notebook: notebook execution tests",
+  "acceptance: public behavior tests",
+  "security: repository and dependency checks",
+  "slow: tests that may take more than ten seconds",
+  "release: tests that require release or GitHub state",
+]
+filterwarnings = [
+  "error::DeprecationWarning:classical_ml_lab.*",
+  "error::FutureWarning:classical_ml_lab.*",
+  "error::FutureWarning:sklearn.*",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["classical_ml_lab"]
+
+[tool.coverage.report]
+fail_under = 85
+show_missing = true
+skip_covered = true
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "1.0.0"
+version_files = ["pyproject.toml:version"]
+tag_format = "v$version"
+update_changelog_on_bump = true

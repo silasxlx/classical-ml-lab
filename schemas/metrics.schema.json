@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/silasxlx/classical-ml-lab/schemas/metrics.schema.json",
+  "title": "classical-ml-lab experiment metrics",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "experiment",
+    "task",
+    "dataset",
+    "split",
+    "metrics",
+    "confusion_matrix",
+    "cross_validation"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "experiment": { "enum": ["decision-tree", "random-forest", "adaboost", "svm"] },
+    "task": { "enum": ["binary_classification", "multiclass_classification"] },
+    "dataset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "source", "fingerprint"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "source": { "type": "string", "minLength": 1 },
+        "fingerprint": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+      }
+    },
+    "split": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["strategy", "train_samples", "test_samples", "test_size"],
+      "properties": {
+        "strategy": { "const": "stratified_holdout" },
+        "train_samples": { "type": "integer", "minimum": 1 },
+        "test_samples": { "type": "integer", "minimum": 1 },
+        "test_size": { "type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1 }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "minProperties": 7,
+      "additionalProperties": { "type": "number", "minimum": 0, "maximum": 1 }
+    },
+    "confusion_matrix": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "array",
+        "minItems": 2,
+        "items": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "cross_validation": {
+      "oneOf": [{ "type": "null" }, { "type": "object" }]
+    }
+  }
+}
