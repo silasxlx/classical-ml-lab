@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "classical-ml-lab"
-version = "1.1.0"
+version = "1.2.0"
 description = "Reproducible, production-minded classical machine-learning experiments."
 readme = "README.md"
 requires-python = ">=3.11,<3.14"
@@ -103,7 +103,7 @@ skip_covered = true
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "1.1.0"
+version = "1.2.0"
 version_files = ["pyproject.toml:version"]
 tag_format = "v$version"
 update_changelog_on_bump = true

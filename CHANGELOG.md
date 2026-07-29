@@ -4,6 +4,19 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-07-29
+
+### Added
+
+- Fixed-parameter KNN and Gaussian Naive Bayes experiments on the Iris dataset.
+- True unsupervised KMeans experiment with a dedicated clustering artifact schema.
+- Validated silhouette, adjusted Rand index, normalized mutual information, and inertia metrics.
+
+### Changed
+
+- `ml-lab list` and `ml-lab run all` now include eight experiments.
+- Package version advanced to `1.2.0` without changing existing classification experiment behavior.
+
 ## [1.1.0] - 2026-07-29
 
 ### Added
@@ -35,6 +48,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - Added dependency, code, and secret scanning configuration.
 - Added explicit prohibitions on real customer data and high-risk decision use.
 
-[Unreleased]: https://github.com/silasxlx/classical-ml-lab/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/silasxlx/classical-ml-lab/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/silasxlx/classical-ml-lab/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/silasxlx/classical-ml-lab/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/silasxlx/classical-ml-lab/releases/tag/v1.0.0

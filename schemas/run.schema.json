@@ -48,7 +48,10 @@
               "random-forest",
               "adaboost",
               "svm",
-              "logistic-regression"
+              "logistic-regression",
+              "knn",
+              "naive-bayes",
+              "kmeans"
             ]
           },
           "status": { "const": "success" },

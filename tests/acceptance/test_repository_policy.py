@@ -54,6 +54,13 @@ def test_api_docs_cover_public_commands_and_functions() -> None:
         "logistic-regression",
         "build_logistic_regression_search",
         "run_logistic_regression",
+        "build_knn_pipeline",
+        "run_knn",
+        "build_naive_bayes",
+        "run_naive_bayes",
+        "build_kmeans_pipeline",
+        "run_kmeans",
+        "compute_clustering_metrics",
     ):
         assert symbol in api
     assert "Educational use only" in build_parser().format_help() or "machine-learning" in api
@@ -101,18 +108,28 @@ def test_version_and_release_policy_use_semver() -> None:
     assert "## [Unreleased]" in changelog
     assert "SemVer" in contributing
     assert 'name = "cz_conventional_commits"' in pyproject
-    assert __version__ == "1.1.0"
-    assert pyproject.count('version = "1.1.0"') == 2
+    assert __version__ == "1.2.0"
+    assert pyproject.count('version = "1.2.0"') == 2
     assert re.search(
-        r'\[\[package\]\]\s+name = "classical-ml-lab"\s+version = "1.1.0"', lockfile
+        r'\[\[package\]\]\s+name = "classical-ml-lab"\s+version = "1.2.0"', lockfile
     )
+    assert "## [1.2.0]" in changelog
     assert "## [1.1.0]" in changelog
 
 
 @pytest.mark.acceptance
-def test_readme_documents_the_fifth_experiment() -> None:
+def test_readme_documents_all_eight_experiments() -> None:
     readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
-    for phrase in ("五个实验", "Logistic Regression", "logistic-regression"):
+    for phrase in (
+        "八个实验",
+        "Logistic Regression",
+        "KNN",
+        "Naive Bayes",
+        "KMeans",
+        "knn",
+        "naive-bayes",
+        "kmeans",
+    ):
         assert phrase in readme
 
 

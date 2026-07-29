@@ -22,7 +22,9 @@
         "random-forest",
         "adaboost",
         "svm",
-        "logistic-regression"
+        "logistic-regression",
+        "knn",
+        "naive-bayes"
       ]
     },
     "task": { "enum": ["binary_classification", "multiclass_classification"] },

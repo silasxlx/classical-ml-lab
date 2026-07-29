@@ -16,7 +16,7 @@ import sklearn
 
 from classical_ml_lab import __version__
 from classical_ml_lab.errors import InputValidationError
-from classical_ml_lab.models import ExperimentResult
+from classical_ml_lab.models import RunResult
 
 
 def utc_now() -> datetime:
@@ -102,7 +102,7 @@ def success_payload(
     digest: str,
     started_at: datetime,
     completed_at: datetime,
-    results: list[ExperimentResult],
+    results: list[RunResult],
 ) -> dict[str, Any]:
     """Build the public success run manifest."""
 

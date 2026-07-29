@@ -21,6 +21,7 @@ def test_all_experiments_produce_schema_valid_auditable_artifacts(tmp_path: Path
     manifest = _load_json(run_dir / "run.json")
     run_schema = _load_json(PROJECT_ROOT / "schemas" / "run.schema.json")
     metrics_schema = _load_json(PROJECT_ROOT / "schemas" / "metrics.schema.json")
+    clustering_schema = _load_json(PROJECT_ROOT / "schemas" / "clustering.schema.json")
     Draft202012Validator(run_schema).validate(manifest)
     assert manifest["status"] == "success"
     experiments = manifest["experiments"]
@@ -31,11 +32,16 @@ def test_all_experiments_produce_schema_valid_auditable_artifacts(tmp_path: Path
         "adaboost",
         "svm",
         "logistic-regression",
+        "knn",
+        "naive-bayes",
+        "kmeans",
     ]
     for experiment in experiments:
         assert isinstance(experiment, dict)
         metrics_path = run_dir / str(experiment["metrics_path"])
-        Draft202012Validator(metrics_schema).validate(_load_json(metrics_path))
+        metrics = _load_json(metrics_path)
+        schema = clustering_schema if metrics["task"] == "clustering" else metrics_schema
+        Draft202012Validator(schema).validate(metrics)
         for relative in experiment["figures"]:
             figure = run_dir / str(relative)
             assert figure.is_file()

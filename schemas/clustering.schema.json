@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/silasxlx/classical-ml-lab/schemas/clustering.schema.json",
+  "title": "classical-ml-lab clustering experiment metrics",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "experiment",
+    "task",
+    "dataset",
+    "fit",
+    "metrics",
+    "cluster_sizes",
+    "config"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "experiment": { "const": "kmeans" },
+    "task": { "const": "clustering" },
+    "dataset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "source", "fingerprint"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "source": { "type": "string", "minLength": 1 },
+        "fingerprint": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+      }
+    },
+    "fit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["strategy", "samples", "features"],
+      "properties": {
+        "strategy": { "const": "full_dataset" },
+        "samples": { "type": "integer", "minimum": 1 },
+        "features": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "silhouette",
+        "adjusted_rand_index",
+        "normalized_mutual_info",
+        "inertia"
+      ],
+      "properties": {
+        "silhouette": { "type": "number", "minimum": -1, "maximum": 1 },
+        "adjusted_rand_index": { "type": "number", "minimum": -1, "maximum": 1 },
+        "normalized_mutual_info": { "type": "number", "minimum": 0, "maximum": 1 },
+        "inertia": { "type": "number", "minimum": 0 }
+      }
+    },
+    "cluster_sizes": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": { "type": "integer", "minimum": 1 }
+    },
+    "config": { "type": "object" }
+  }
+}
