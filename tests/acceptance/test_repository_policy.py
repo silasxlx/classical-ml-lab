@@ -61,6 +61,15 @@ def test_api_docs_cover_public_commands_and_functions() -> None:
         "build_kmeans_pipeline",
         "run_kmeans",
         "compute_clustering_metrics",
+        "load_diabetes_regression",
+        "compute_regression_metrics",
+        "create_data_quality_artifact",
+        "build_ridge_regression_pipeline",
+        "run_ridge_regression",
+        "xgboost-regression",
+        "lightgbm-regression",
+        "catboost-regression",
+        "boosting-all",
     ):
         assert symbol in api
     assert "Educational use only" in build_parser().format_help() or "machine-learning" in api
@@ -130,6 +139,13 @@ def test_readme_documents_core_and_optional_experiments() -> None:
         "knn",
         "naive-bayes",
         "kmeans",
+        "Ridge Regression",
+        "ridge-regression",
+        "xgboost-regression",
+        "lightgbm-regression",
+        "catboost-regression",
+        "data-quality.json",
+        "SHAP 只描述模型",
     ):
         assert phrase in readme
 
