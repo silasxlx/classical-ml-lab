@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: astral-sh/setup-uv@d0d8abe699bfb85fec6de9f7adb5ae17292296ff # v6
+        with:
+          python-version: "3.13"
+          enable-cache: true
+      - run: uv lock --check
+      - run: uv sync --locked --all-extras
+      - run: uv run ruff check .
+      - run: uv run mypy src
+      - run: uv run vulture src --min-confidence 90
+      - name: Reject untracked work markers
+        shell: bash
+        run: |
+          if grep -RInE 'TODO|FIXME|HACK' src tests; then
+            echo 'TODO/FIXME/HACK requires a tracked issue and policy update.'
+            exit 1
+          fi
+
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            python: "3.11"
+          - os: ubuntu-latest
+            python: "3.12"
+          - os: ubuntu-latest
+            python: "3.13"
+          - os: windows-latest
+            python: "3.13"
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: astral-sh/setup-uv@d0d8abe699bfb85fec6de9f7adb5ae17292296ff # v6
+        with:
+          python-version: ${{ matrix.python }}
+          enable-cache: true
+      - run: uv sync --locked --all-extras
+      - name: Unit and integration tests
+        env:
+          MPLBACKEND: Agg
+        run: uv run pytest tests/unit tests/integration --disable-socket --cov=classical_ml_lab --cov-branch --cov-fail-under=85
+
+  notebooks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: astral-sh/setup-uv@d0d8abe699bfb85fec6de9f7adb5ae17292296ff # v6
+        with:
+          python-version: "3.13"
+          enable-cache: true
+      - run: uv sync --locked --all-extras
+      - name: Execute clean notebooks
+        env:
+          MPLBACKEND: Agg
+        run: >-
+          uv run pytest tests/notebook --disable-socket
+          --allow-hosts=localhost,127.0.0.1,::1
+
+  acceptance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: astral-sh/setup-uv@d0d8abe699bfb85fec6de9f7adb5ae17292296ff # v6
+        with:
+          python-version: "3.13"
+          enable-cache: true
+      - run: uv sync --locked --all-extras
+      - run: uv run pytest tests/acceptance -m "not release" --disable-socket
