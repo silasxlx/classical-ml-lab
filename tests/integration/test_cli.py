@@ -6,10 +6,11 @@ from pathlib import Path
 import pytest
 
 from classical_ml_lab.cli import main
+from classical_ml_lab.experiments import DATASET_EXPERIMENT_IDS
 
 
 @pytest.mark.integration
-def test_list_prints_five_experiments_in_stable_order(capsys: pytest.CaptureFixture[str]) -> None:
+def test_list_prints_eight_experiments_in_stable_order(capsys: pytest.CaptureFixture[str]) -> None:
     assert main(["list"]) == 0
     ids = [line.split("\t", maxsplit=1)[0] for line in capsys.readouterr().out.splitlines()]
     assert ids == [
@@ -18,6 +19,9 @@ def test_list_prints_five_experiments_in_stable_order(capsys: pytest.CaptureFixt
         "adaboost",
         "svm",
         "logistic-regression",
+        "knn",
+        "naive-bayes",
+        "kmeans",
     ]
 
 
@@ -51,6 +55,32 @@ def test_credit_options_are_rejected_for_other_experiments(
     assert code == 2
     assert "only valid for random-forest or logistic-regression" in capsys.readouterr().err
     assert list(tmp_path.iterdir()) == []
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize("experiment", ["knn", "naive-bayes", "kmeans"])
+def test_new_experiments_do_not_expand_credit_data_options(
+    experiment: str, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    output_dir = tmp_path / experiment
+    code = main(
+        [
+            "run",
+            experiment,
+            "--dataset",
+            "synthetic",
+            "--output-dir",
+            str(output_dir),
+        ]
+    )
+    assert code == 2
+    assert "only valid for random-forest or logistic-regression" in capsys.readouterr().err
+    assert not output_dir.exists()
+
+
+@pytest.mark.integration
+def test_credit_data_capability_remains_limited_to_the_existing_two_experiments() -> None:
+    assert frozenset({"random-forest", "logistic-regression"}) == DATASET_EXPERIMENT_IDS
 
 
 @pytest.mark.integration

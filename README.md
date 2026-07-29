@@ -1,8 +1,8 @@
 # classical-ml-lab
 
-> Reproducible, production-minded experiments for Decision Trees, Random Forests, AdaBoost, SVM, and Logistic Regression. Built for learning and engineering review—not for real credit or medical decisions.
+> Reproducible, production-minded experiments for Decision Trees, Random Forests, AdaBoost, SVM, Logistic Regression, KNN, Naive Bayes, and KMeans. Built for learning and engineering review—not for real credit or medical decisions.
 
-一个可复现的经典机器学习实验室：用五个小而完整的实验展示可信的数据处理、模型训练、调参、评估和可审计产物。
+一个可复现的经典机器学习实验室：用八个小而完整的实验展示可信的数据处理、模型训练、调参、分类、聚类评估和可审计产物。
 
 本项目是已归档的 [`machinelearning-blob`](https://github.com/silasxlx/machinelearning-blob) 教学示例的重新设计版本。
 
@@ -10,7 +10,7 @@
 
 | 问题 | 回答 |
 | --- | --- |
-| **是什么？** | 一个围绕决策树、随机森林、AdaBoost、SVM 和逻辑回归的统一 Python 包与 CLI。 |
+| **是什么？** | 一个围绕决策树、随机森林、AdaBoost、SVM、逻辑回归、KNN、朴素贝叶斯和 KMeans 的统一 Python 包与 CLI。 |
 | **为什么？** | 把容易“跑出一个分数”的旧 Notebook，升级为路径无关、评估可信、依赖可复现、结果可审计的工程项目。 |
 | **怎么用？** | 安装 `uv` 后执行下面三条命令，默认数据全部离线可用。 |
 
@@ -29,7 +29,7 @@ uv run ml-lab run all
 ```
 <!-- quickstart:end -->
 
-第三条命令会自动创建环境、安装锁定依赖并在 `artifacts/<run-id>/` 下生成五个实验的指标和图表。
+第三条命令会自动创建环境、安装锁定依赖并在 `artifacts/<run-id>/` 下生成八个实验的指标和图表。
 
 查看或单独运行实验：
 
@@ -38,9 +38,12 @@ uv run ml-lab list
 uv run ml-lab run svm --seed 42
 uv run ml-lab run random-forest --seed 42
 uv run ml-lab run logistic-regression --seed 42
+uv run ml-lab run knn --seed 42
+uv run ml-lab run naive-bayes --seed 42
+uv run ml-lab run kmeans --seed 42
 ```
 
-## 五个实验
+## 八个实验
 
 | 实验 | 默认数据 | 关键工程点 | 主要产物 |
 | --- | --- | --- | --- |
@@ -49,8 +52,11 @@ uv run ml-lab run logistic-regression --seed 42
 | AdaBoost | Breast Cancer Wisconsin | 当前 `estimator` API、独立测试集 | 二分类指标、特征重要性 |
 | SVM | Iris 二分类子集 | `StandardScaler + SVC` Pipeline | 二分类指标、决策边界 |
 | Logistic Regression | 本地生成的不平衡数据 | `Imputer + Scaler + LogisticRegression`、训练集内分层 CV | 二分类指标、CV 摘要、标准化系数图 |
+| KNN | Iris | `StandardScaler + KNeighborsClassifier` | 多分类指标、混淆矩阵图 |
+| Naive Bayes | Iris | 固定 GaussianNB、独立测试集 | 多分类指标、混淆矩阵图 |
+| KMeans | Iris 特征 | 目标标签不参与拟合、独立聚类 Schema | 聚类指标、簇大小、二维投影图 |
 
-二分类实验报告 accuracy、balanced accuracy、precision、recall、F1、ROC-AUC、PR-AUC 和混淆矩阵。Iris 多分类实验同时报告 macro/weighted 指标和 OvR AUC。
+二分类实验报告 accuracy、balanced accuracy、precision、recall、F1、ROC-AUC、PR-AUC 和混淆矩阵。Iris 多分类实验同时报告 macro/weighted 指标和 OvR AUC。KMeans 单独报告 silhouette、ARI、NMI、inertia 和簇大小，不把聚类伪装成分类结果。
 
 ## 输出与可审计性
 
@@ -64,7 +70,10 @@ artifacts/<run-id>/
     ├── random-forest/
     ├── adaboost/
     ├── svm/
-    └── logistic-regression/
+    ├── logistic-regression/
+    ├── knn/
+    ├── naive-bayes/
+    └── kmeans/
 ```
 
 - `run.json` 记录 seed、配置哈希、依赖版本、运行状态和相对产物路径。
@@ -78,11 +87,20 @@ JSON Schema 位于 [`schemas/`](schemas/)，公共接口见 [`docs/api.md`](docs
 
 ```mermaid
 flowchart LR
-    CLI["CLI: ml-lab"] --> Runner["Run orchestration"]
-    Runner --> Data["Offline data + validation"]
-    Runner --> Experiments["Five experiment Pipelines"]
-    Experiments --> Metrics["Validated metrics"]
-    Metrics --> Artifacts["Versioned JSON + PNG artifacts"]
+    CLI["CLI<br/>ml-lab"] --> Runner["Runner<br/>参数校验 · 运行编排"]
+    Runner --> Registry["实验注册表<br/>稳定顺序 · 统一入口"]
+
+    Data["离线数据<br/>内置 · 合成 · 本地 CSV"] --> Classification
+    Data --> Clustering
+
+    Registry --> Classification["分类实验<br/>7 experiments"]
+    Registry --> Clustering["聚类实验<br/>KMeans"]
+
+    Classification --> ClassificationMetrics["分类指标<br/>Holdout · CV · AUC"]
+    Clustering --> ClusteringMetrics["聚类指标<br/>Silhouette · ARI · NMI"]
+
+    ClassificationMetrics --> Artifacts["可审计产物<br/>run.json · metrics.json · PNG"]
+    ClusteringMetrics --> Artifacts
 ```
 
 核心代码位于 `src/classical_ml_lab`：

@@ -22,7 +22,7 @@ from classical_ml_lab.experiments import (
     EXPERIMENT_IDS,
     EXPERIMENT_RUNNERS,
 )
-from classical_ml_lab.models import ExperimentResult
+from classical_ml_lab.models import RunResult
 
 
 def _selection(experiment: str) -> tuple[str, ...]:
@@ -60,7 +60,7 @@ def _run_one(
     output_dir: Path,
     dataset: str | None,
     data_path: Path | None,
-) -> ExperimentResult:
+) -> RunResult:
     runner = EXPERIMENT_RUNNERS[experiment]
     if experiment in DATASET_EXPERIMENT_IDS:
         return runner(
@@ -73,7 +73,7 @@ def _run_one(
 
 
 def _hash_input(
-    *, seed: int, selection: tuple[str, ...], results: list[ExperimentResult]
+    *, seed: int, selection: tuple[str, ...], results: list[RunResult]
 ) -> dict[str, Any]:
     return {
         "seed": seed,
@@ -104,7 +104,7 @@ def run_experiments(
     staging = create_staging_directory(output_dir)
     started_at = utc_now()
     try:
-        results: list[ExperimentResult] = []
+        results: list[RunResult] = []
         for experiment_id in selected:
             experiment_dir = staging / "experiments" / experiment_id
             result = _run_one(

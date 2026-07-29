@@ -17,6 +17,9 @@ This keeps execution independent of notebook state and local paths. Public CLI c
 | AdaBoost | Breast Cancer Wisconsin Diagnostic | scikit-learn bundled dataset | Never |
 | Random Forest | Deterministic credit-shaped synthetic data | Generated locally | Never |
 | Logistic Regression | Deterministic credit-shaped synthetic data | Generated locally | Never |
+| KNN | Iris | scikit-learn bundled dataset | Never |
+| Gaussian Naive Bayes | Iris | scikit-learn bundled dataset | Never |
+| KMeans | Iris features | scikit-learn bundled dataset | Never |
 
 Dataset fingerprints are calculated from normalized feature and target values and recorded in `metrics.json`. Default experiments never download data or depend on the current working directory.
 
@@ -49,11 +52,17 @@ Logistic Regression uses median imputation followed by standardization and an L2
 
 Tests verify split isolation and Pipeline placement rather than accepting a model only because it reaches a high score.
 
+## Classification and clustering remain distinct
+
+KNN uses scaling inside its Pipeline because neighbor distance is scale-sensitive. Gaussian Naive Bayes uses its fixed continuous-feature model directly. Both reuse the established Iris holdout and multiclass probability metrics.
+
+KMeans fits a standardized four-feature Iris matrix without receiving target labels. The known species labels are used only after fitting for ARI and NMI; silhouette and inertia remain feature/partition metrics. Its artifact has a dedicated schema, a full-dataset fit summary, cluster sizes, and a two-feature visualization projection rather than a fabricated classification split or confusion matrix.
+
 ## Versioned and auditable artifacts
 
 Every CLI run writes a versioned `run.json`, per-experiment `metrics.json`, and referenced PNG figures in a unique directory. Metrics artifacts include the model configuration, while configuration hashes cover the seed, model configuration, and dataset fingerprint and exclude timestamps and output paths. The additive `config` field is optional in schema version `1.0`, so existing v1.0 artifacts remain valid.
 
-Failure manifests are sanitized and do not contain raw input data, credentials, or local absolute paths. JSON contracts live in [`schemas/`](../schemas/).
+Failure manifests are sanitized and do not contain raw input data, credentials, or local absolute paths. Classification and clustering JSON contracts live in [`schemas/`](../schemas/) and remain separate so their scientific meanings are explicit.
 
 ## Safety limitations
 
