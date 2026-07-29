@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.python-version
+.venv/
+venv/
+
+# Test and tooling caches
+.coverage
+coverage.xml
+htmlcov/
+.hypothesis/
+.mypy_cache/
+.pip-audit-cache/
+.pytest_cache/
+.ruff_cache/
+
+# Build and generated artifacts
+build/
+dist/
+artifacts/
+
+# Local or downloaded data and models
+data/raw/
+*.joblib
+*.pkl
+*.onnx
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Editors and OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
