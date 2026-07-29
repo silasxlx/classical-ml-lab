@@ -16,6 +16,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.model_selection import GridSearchCV, StratifiedKFold
 from sklearn.pipeline import Pipeline
 
+from classical_ml_lab.data_quality import create_data_quality_artifact
 from classical_ml_lab.experiments.common import load_credit_dataset, stratified_split
 from classical_ml_lab.metrics import compute_binary_metrics
 from classical_ml_lab.models import ExperimentResult
@@ -58,6 +59,7 @@ def run_random_forest(
     """Tune and evaluate random forest without exposing the final holdout to CV."""
 
     bundle = load_credit_dataset(dataset, data_path, seed)
+    quality = create_data_quality_artifact(bundle, output_dir=output_dir)
     train_x, test_x, train_y, test_y, split = stratified_split(bundle, seed)
     search = build_random_forest_search(seed)
     search.fit(train_x, train_y)
@@ -101,5 +103,6 @@ def run_random_forest(
             "best_params": best_params,
         },
         config={"dataset": dataset, "n_estimators": 80, "grid": best_params},
-        figures=("figures/feature-importance.png",),
+        figures=("figures/feature-importance.png", quality.figure_path),
+        data_quality=quality.payload,
     )

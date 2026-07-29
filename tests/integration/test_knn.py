@@ -69,5 +69,8 @@ def test_knn_uses_probabilities_and_writes_metrics_and_figure(
     assert result.metrics["roc_auc_ovr_macro"] >= 0.95
     assert captured["scores"].shape == (45, 3)
     assert not np.array_equal(captured["scores"], captured["predicted"])
-    assert result.figures == ("figures/confusion-matrix.png",)
+    assert result.figures == (
+        "figures/confusion-matrix.png",
+        "figures/data-quality.png",
+    )
     assert (tmp_path / result.figures[0]).stat().st_size > 0

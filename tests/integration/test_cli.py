@@ -10,7 +10,9 @@ from classical_ml_lab.experiments import DATASET_EXPERIMENT_IDS
 
 
 @pytest.mark.integration
-def test_list_prints_eight_experiments_in_stable_order(capsys: pytest.CaptureFixture[str]) -> None:
+def test_list_prints_core_and_optional_experiments_in_stable_order(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
     assert main(["list"]) == 0
     ids = [line.split("\t", maxsplit=1)[0] for line in capsys.readouterr().out.splitlines()]
     assert ids == [
@@ -22,6 +24,10 @@ def test_list_prints_eight_experiments_in_stable_order(capsys: pytest.CaptureFix
         "knn",
         "naive-bayes",
         "kmeans",
+        "ridge-regression",
+        "xgboost-regression",
+        "lightgbm-regression",
+        "catboost-regression",
     ]
 
 
@@ -58,7 +64,18 @@ def test_credit_options_are_rejected_for_other_experiments(
 
 
 @pytest.mark.integration
-@pytest.mark.parametrize("experiment", ["knn", "naive-bayes", "kmeans"])
+@pytest.mark.parametrize(
+    "experiment",
+    [
+        "knn",
+        "naive-bayes",
+        "kmeans",
+        "ridge-regression",
+        "xgboost-regression",
+        "lightgbm-regression",
+        "catboost-regression",
+    ],
+)
 def test_new_experiments_do_not_expand_credit_data_options(
     experiment: str, tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:

@@ -9,7 +9,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from sklearn.datasets import load_breast_cancer, load_iris, make_classification
+from sklearn.datasets import load_breast_cancer, load_diabetes, load_iris, make_classification
 
 from classical_ml_lab.errors import InputValidationError
 from classical_ml_lab.models import DatasetBundle
@@ -84,6 +84,22 @@ def load_breast_cancer_binary() -> DatasetBundle:
         source="sklearn",
         fingerprint=_fingerprint(features, target),
         task="binary_classification",
+    )
+
+
+def load_diabetes_regression() -> DatasetBundle:
+    """Load raw-scale Diabetes features for one offline regression task."""
+
+    raw = load_diabetes(as_frame=True, scaled=False)
+    features = pd.DataFrame(raw.data).copy()
+    target = pd.Series(raw.target, name="disease_progression", dtype="float64")
+    return DatasetBundle(
+        features=features,
+        target=target,
+        name="diabetes",
+        source="sklearn",
+        fingerprint=_fingerprint(features, target),
+        task="regression",
     )
 
 

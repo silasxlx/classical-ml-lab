@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from importlib.util import find_spec
 from pathlib import Path
 
 import pytest
@@ -9,6 +10,9 @@ from jsonschema import Draft202012Validator
 from classical_ml_lab.runner import run_experiments
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+HAS_ALL_BOOSTING = all(
+    find_spec(package) is not None for package in ("xgboost", "lightgbm", "catboost", "shap")
+)
 
 
 def _load_json(path: Path) -> dict[str, object]:
@@ -22,6 +26,8 @@ def test_all_experiments_produce_schema_valid_auditable_artifacts(tmp_path: Path
     run_schema = _load_json(PROJECT_ROOT / "schemas" / "run.schema.json")
     metrics_schema = _load_json(PROJECT_ROOT / "schemas" / "metrics.schema.json")
     clustering_schema = _load_json(PROJECT_ROOT / "schemas" / "clustering.schema.json")
+    regression_schema = _load_json(PROJECT_ROOT / "schemas" / "regression.schema.json")
+    quality_schema = _load_json(PROJECT_ROOT / "schemas" / "data-quality.schema.json")
     Draft202012Validator(run_schema).validate(manifest)
     assert manifest["status"] == "success"
     experiments = manifest["experiments"]
@@ -35,13 +41,20 @@ def test_all_experiments_produce_schema_valid_auditable_artifacts(tmp_path: Path
         "knn",
         "naive-bayes",
         "kmeans",
+        "ridge-regression",
     ]
     for experiment in experiments:
         assert isinstance(experiment, dict)
         metrics_path = run_dir / str(experiment["metrics_path"])
         metrics = _load_json(metrics_path)
-        schema = clustering_schema if metrics["task"] == "clustering" else metrics_schema
+        schema = {
+            "clustering": clustering_schema,
+            "regression": regression_schema,
+        }.get(metrics["task"], metrics_schema)
         Draft202012Validator(schema).validate(metrics)
+        quality_path = run_dir / str(experiment["data_quality_path"])
+        quality = _load_json(quality_path)
+        Draft202012Validator(quality_schema).validate(quality)
         for relative in experiment["figures"]:
             figure = run_dir / str(relative)
             assert figure.is_file()
@@ -57,12 +70,54 @@ def test_all_experiments_produce_schema_valid_auditable_artifacts(tmp_path: Path
 
 
 @pytest.mark.integration
+@pytest.mark.slow
+@pytest.mark.skipif(not HAS_ALL_BOOSTING, reason="all optional Boosting extras are required")
+def test_boosting_all_is_separate_and_records_optional_versions(tmp_path: Path) -> None:
+    run_dir = run_experiments("boosting-all", seed=42, output_dir=tmp_path)
+    manifest = _load_json(run_dir / "run.json")
+    Draft202012Validator(
+        _load_json(PROJECT_ROOT / "schemas" / "run.schema.json")
+    ).validate(manifest)
+    assert [item["id"] for item in manifest["experiments"]] == [
+        "xgboost-regression",
+        "lightgbm-regression",
+        "catboost-regression",
+    ]
+    assert set(manifest["environment"]["optional_libraries"]) == {
+        "catboost",
+        "lightgbm",
+        "shap",
+        "xgboost",
+    }
+    for experiment in manifest["experiments"]:
+        assert "explanation_path" in experiment
+        explanation_path = run_dir / str(experiment["explanation_path"])
+        Draft202012Validator(
+            _load_json(PROJECT_ROOT / "schemas" / "explanation.schema.json")
+        ).validate(_load_json(explanation_path))
+
+
+@pytest.mark.integration
 def test_v1_metrics_without_the_v11_config_addition_remain_schema_valid(tmp_path: Path) -> None:
     run_dir = run_experiments("svm", seed=42, output_dir=tmp_path)
     metrics = _load_json(run_dir / "experiments" / "svm" / "metrics.json")
     metrics.pop("config")
     metrics_schema = _load_json(PROJECT_ROOT / "schemas" / "metrics.schema.json")
     Draft202012Validator(metrics_schema).validate(metrics)
+
+
+@pytest.mark.integration
+def test_v12_run_manifest_without_new_artifact_links_remains_schema_valid(
+    tmp_path: Path,
+) -> None:
+    run_dir = run_experiments("all", seed=42, output_dir=tmp_path)
+    manifest = _load_json(run_dir / "run.json")
+    manifest["experiments"] = manifest["experiments"][:8]
+    for experiment in manifest["experiments"]:
+        experiment.pop("data_quality_path")
+    Draft202012Validator(
+        _load_json(PROJECT_ROOT / "schemas" / "run.schema.json")
+    ).validate(manifest)
 
 
 @pytest.mark.integration

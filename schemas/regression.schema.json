@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/silasxlx/classical-ml-lab/schemas/regression.schema.json",
+  "title": "classical-ml-lab regression experiment metrics",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "experiment", "task", "dataset", "split", "metrics", "config"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "experiment": {
+      "enum": [
+        "ridge-regression",
+        "xgboost-regression",
+        "lightgbm-regression",
+        "catboost-regression"
+      ]
+    },
+    "task": { "const": "regression" },
+    "dataset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "source", "fingerprint"],
+      "properties": {
+        "name": { "const": "diabetes" },
+        "source": { "const": "sklearn" },
+        "fingerprint": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+      }
+    },
+    "split": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["strategy", "train_samples", "test_samples", "test_size"],
+      "properties": {
+        "strategy": { "const": "random_holdout" },
+        "train_samples": { "type": "integer", "minimum": 1 },
+        "test_samples": { "type": "integer", "minimum": 1 },
+        "test_size": { "type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1 }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mae", "rmse", "r2"],
+      "properties": {
+        "mae": { "type": "number", "minimum": 0 },
+        "rmse": { "type": "number", "minimum": 0 },
+        "r2": { "type": "number" }
+      }
+    },
+    "config": { "type": "object" }
+  }
+}

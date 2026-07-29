@@ -46,3 +46,23 @@ def stratified_split(
         "test_size": test_size,
     }
     return train_x, test_x, train_y, test_y, split
+
+
+def random_split(
+    bundle: DatasetBundle, seed: int, test_size: float = 0.3
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series, dict[str, Any]]:
+    """Create one deterministic non-stratified holdout for regression."""
+
+    train_x, test_x, train_y, test_y = train_test_split(
+        bundle.features,
+        bundle.target,
+        test_size=test_size,
+        random_state=seed,
+    )
+    split = {
+        "strategy": "random_holdout",
+        "train_samples": len(train_y),
+        "test_samples": len(test_y),
+        "test_size": test_size,
+    }
+    return train_x, test_x, train_y, test_y, split

@@ -9,6 +9,7 @@ import platform
 import shutil
 import uuid
 from datetime import UTC, datetime
+from importlib.metadata import version
 from pathlib import Path
 from typing import Any
 
@@ -109,14 +110,37 @@ def success_payload(
     experiments = []
     for result in results:
         prefix = Path("experiments") / result.experiment
-        experiments.append(
-            {
-                "id": result.experiment,
-                "status": "success",
-                "metrics_path": (prefix / "metrics.json").as_posix(),
-                "figures": [(prefix / item).as_posix() for item in result.figures],
-            }
-        )
+        item = {
+            "id": result.experiment,
+            "status": "success",
+            "metrics_path": (prefix / "metrics.json").as_posix(),
+            "data_quality_path": (prefix / "data-quality.json").as_posix(),
+            "figures": [(prefix / item).as_posix() for item in result.figures],
+        }
+        explanation_path = getattr(result, "explanation_path", None)
+        if explanation_path is not None:
+            item["explanation_path"] = (prefix / explanation_path).as_posix()
+        experiments.append(item)
+    environment: dict[str, Any] = {
+        "python": platform.python_version(),
+        "platform": platform.system().lower(),
+        "package_version": __version__,
+        "scikit_learn": sklearn.__version__,
+    }
+    experiment_ids = {result.experiment for result in results}
+    optional_distributions = {
+        "xgboost": "xgboost-regression",
+        "lightgbm": "lightgbm-regression",
+        "catboost": "catboost-regression",
+    }
+    used_optional = {
+        distribution: version(distribution)
+        for distribution, experiment in optional_distributions.items()
+        if experiment in experiment_ids
+    }
+    if used_optional:
+        used_optional["shap"] = version("shap")
+        environment["optional_libraries"] = dict(sorted(used_optional.items()))
     return {
         "schema_version": "1.0",
         "run_id": run_id,
@@ -125,12 +149,7 @@ def success_payload(
         "config_hash": digest,
         "started_at": isoformat(started_at),
         "completed_at": isoformat(completed_at),
-        "environment": {
-            "python": platform.python_version(),
-            "platform": platform.system().lower(),
-            "package_version": __version__,
-            "scikit_learn": sklearn.__version__,
-        },
+        "environment": environment,
         "experiments": experiments,
         "error": None,
     }

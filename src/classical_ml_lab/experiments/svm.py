@@ -16,6 +16,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 
 from classical_ml_lab.data import load_iris_binary
+from classical_ml_lab.data_quality import create_data_quality_artifact
 from classical_ml_lab.experiments.common import stratified_split
 from classical_ml_lab.metrics import compute_binary_metrics
 from classical_ml_lab.models import ExperimentResult
@@ -36,6 +37,7 @@ def run_svm(*, seed: int, output_dir: Path) -> ExperimentResult:
     """Train and evaluate the scaled binary SVM experiment."""
 
     bundle = load_iris_binary()
+    quality = create_data_quality_artifact(bundle, output_dir=output_dir)
     train_x, test_x, train_y, test_y, split = stratified_split(bundle, seed)
     model = build_svm_pipeline(seed)
     model.fit(train_x, train_y)
@@ -80,5 +82,6 @@ def run_svm(*, seed: int, output_dir: Path) -> ExperimentResult:
         confusion_matrix=evaluated.confusion_matrix,
         cross_validation=None,
         config={"pipeline": ["StandardScaler", "SVC"], "C": 1.0, "kernel": "rbf"},
-        figures=("figures/decision-boundary.png",),
+        figures=("figures/decision-boundary.png", quality.figure_path),
+        data_quality=quality.payload,
     )

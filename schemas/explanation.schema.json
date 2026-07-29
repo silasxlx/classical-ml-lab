@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/silasxlx/classical-ml-lab/schemas/explanation.schema.json",
+  "title": "classical-ml-lab Tree SHAP explanation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "experiment",
+    "task",
+    "method",
+    "model_output",
+    "background_source",
+    "background_samples",
+    "explained_samples",
+    "feature_names",
+    "local_explanation"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "experiment": {
+      "enum": ["xgboost-regression", "lightgbm-regression", "catboost-regression"]
+    },
+    "task": { "const": "regression" },
+    "method": { "const": "TreeExplainer" },
+    "model_output": { "const": "raw" },
+    "background_source": { "const": "training_only" },
+    "background_samples": { "type": "integer", "minimum": 1 },
+    "explained_samples": { "type": "integer", "minimum": 1 },
+    "feature_names": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "local_explanation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sample_index", "base_value", "model_output", "shap_values", "additivity_residual"],
+      "properties": {
+        "sample_index": { "type": ["integer", "string"] },
+        "base_value": { "type": "number" },
+        "model_output": { "type": "number" },
+        "shap_values": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "number" }
+        },
+        "additivity_residual": { "type": "number", "minimum": -0.001, "maximum": 0.001 }
+      }
+    }
+  }
+}
