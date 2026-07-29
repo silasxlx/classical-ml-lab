@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "classical-ml-lab"
-version = "1.0.0"
+version = "1.1.0"
 description = "Reproducible, production-minded classical machine-learning experiments."
 readme = "README.md"
 requires-python = ">=3.11,<3.14"
@@ -86,6 +86,7 @@ markers = [
   "release: tests that require release or GitHub state",
 ]
 filterwarnings = [
+  "error::sklearn.exceptions.ConvergenceWarning",
   "error::DeprecationWarning:classical_ml_lab.*",
   "error::FutureWarning:classical_ml_lab.*",
   "error::FutureWarning:sklearn.*",
@@ -102,7 +103,7 @@ skip_covered = true
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "1.0.0"
+version = "1.1.0"
 version_files = ["pyproject.toml:version"]
 tag_format = "v$version"
 update_changelog_on_bump = true

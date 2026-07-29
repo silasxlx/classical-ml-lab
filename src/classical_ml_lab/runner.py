@@ -17,7 +17,11 @@ from classical_ml_lab.artifacts import (
     write_json,
 )
 from classical_ml_lab.errors import InputValidationError, LabError
-from classical_ml_lab.experiments import EXPERIMENT_IDS, EXPERIMENT_RUNNERS
+from classical_ml_lab.experiments import (
+    DATASET_EXPERIMENT_IDS,
+    EXPERIMENT_IDS,
+    EXPERIMENT_RUNNERS,
+)
 from classical_ml_lab.models import ExperimentResult
 
 
@@ -35,8 +39,14 @@ def _validate_options(
 ) -> None:
     if not 0 <= seed <= 4_294_967_295:
         raise InputValidationError("Seed must be between 0 and 4294967295.")
-    if experiment != "random-forest" and (dataset is not None or data_path is not None):
-        raise InputValidationError("Credit dataset options are only valid for random-forest.")
+    if (
+        experiment not in DATASET_EXPERIMENT_IDS
+        and experiment != "all"
+        and (dataset is not None or data_path is not None)
+    ):
+        raise InputValidationError(
+            "Credit dataset options are only valid for random-forest or logistic-regression."
+        )
     if dataset == "credit" and data_path is None:
         raise InputValidationError("--data-path is required with --dataset credit.")
     if dataset not in {None, "synthetic", "credit"}:
@@ -52,7 +62,7 @@ def _run_one(
     data_path: Path | None,
 ) -> ExperimentResult:
     runner = EXPERIMENT_RUNNERS[experiment]
-    if experiment == "random-forest":
+    if experiment in DATASET_EXPERIMENT_IDS:
         return runner(
             seed=seed,
             output_dir=output_dir,

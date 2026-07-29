@@ -34,7 +34,9 @@ def build_parser() -> argparse.ArgumentParser:
         "--output-dir", type=Path, default=Path("artifacts"), help="Artifact root directory."
     )
     run_parser.add_argument(
-        "--dataset", choices=("synthetic", "credit"), help="Random-forest dataset."
+        "--dataset",
+        choices=("synthetic", "credit"),
+        help="Random-forest and logistic-regression dataset.",
     )
     run_parser.add_argument(
         "--data-path", type=Path, help="Explicit local credit CSV; no data is downloaded."

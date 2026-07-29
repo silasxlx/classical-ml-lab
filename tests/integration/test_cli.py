@@ -9,10 +9,16 @@ from classical_ml_lab.cli import main
 
 
 @pytest.mark.integration
-def test_list_prints_four_experiments_in_stable_order(capsys: pytest.CaptureFixture[str]) -> None:
+def test_list_prints_five_experiments_in_stable_order(capsys: pytest.CaptureFixture[str]) -> None:
     assert main(["list"]) == 0
     ids = [line.split("\t", maxsplit=1)[0] for line in capsys.readouterr().out.splitlines()]
-    assert ids == ["decision-tree", "random-forest", "adaboost", "svm"]
+    assert ids == [
+        "decision-tree",
+        "random-forest",
+        "adaboost",
+        "svm",
+        "logistic-regression",
+    ]
 
 
 @pytest.mark.integration
@@ -43,8 +49,51 @@ def test_credit_options_are_rejected_for_other_experiments(
         ]
     )
     assert code == 2
-    assert "only valid for random-forest" in capsys.readouterr().err
+    assert "only valid for random-forest or logistic-regression" in capsys.readouterr().err
     assert list(tmp_path.iterdir()) == []
+
+
+@pytest.mark.integration
+def test_logistic_regression_cli_accepts_local_credit_data(
+    tmp_path: Path, credit_csv: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    output_dir = tmp_path / "artifacts"
+    code = main(
+        [
+            "run",
+            "logistic-regression",
+            "--dataset",
+            "credit",
+            "--data-path",
+            str(credit_csv),
+            "--output-dir",
+            str(output_dir),
+        ]
+    )
+    assert code == 0
+    run_dir = Path(capsys.readouterr().out.strip())
+    manifest = json.loads((run_dir / "run.json").read_text(encoding="utf-8"))
+    assert [item["id"] for item in manifest["experiments"]] == ["logistic-regression"]
+
+
+@pytest.mark.integration
+def test_credit_dataset_requires_a_path_before_output_is_created(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    output_dir = tmp_path / "artifacts"
+    code = main(
+        [
+            "run",
+            "logistic-regression",
+            "--dataset",
+            "credit",
+            "--output-dir",
+            str(output_dir),
+        ]
+    )
+    assert code == 2
+    assert "--data-path is required" in capsys.readouterr().err
+    assert not output_dir.exists()
 
 
 @pytest.mark.integration

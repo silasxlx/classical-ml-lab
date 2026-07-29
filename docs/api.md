@@ -6,12 +6,12 @@ The command line is the primary stable interface. Python functions are public wh
 
 ### `ml-lab list`
 
-Lists the four experiment IDs in stable order. Exit code `0` indicates success.
+Lists the five experiment IDs in stable order. Exit code `0` indicates success.
 
 ### `ml-lab run`
 
 ```text
-ml-lab run <decision-tree|random-forest|adaboost|svm|all>
+ml-lab run <decision-tree|random-forest|adaboost|svm|logistic-regression|all>
            [--seed INTEGER]
            [--output-dir PATH]
            [--dataset synthetic|credit]
@@ -20,7 +20,7 @@ ml-lab run <decision-tree|random-forest|adaboost|svm|all>
 
 - `--seed`: integer from `0` through `4294967295`; default `42`.
 - `--output-dir`: artifact root; default `artifacts`.
-- `--dataset` and `--data-path`: random-forest only. `credit` requires an explicit local path.
+- `--dataset` and `--data-path`: supported by random forest, Logistic Regression, and `all`. `credit` requires an explicit local path; with `all`, both credit-shaped experiments use the same selected data.
 - Exit `0`: success. Exit `2`: argument or data validation failure. Exit `1`: unexpected execution failure with a sanitized failure manifest.
 
 ## Python API
@@ -68,9 +68,15 @@ run_adaboost(*, seed: int, output_dir: Path) -> ExperimentResult
 run_random_forest(
     *, seed: int, output_dir: Path, dataset: str = "synthetic", data_path: Path | None = None
 ) -> ExperimentResult
+build_logistic_regression_search(seed: int) -> GridSearchCV
+run_logistic_regression(
+    *, seed: int, output_dir: Path, dataset: str = "synthetic", data_path: Path | None = None
+) -> ExperimentResult
 ```
 
 Experiment runners write only their figures into `output_dir` and return typed results. The application runner owns final JSON serialization and run-directory commit semantics.
+
+`build_logistic_regression_search` returns the documented median-imputation, standardization, and Logistic Regression Pipeline wrapped in a deterministic three-fold ROC-AUC grid search. `run_logistic_regression` keeps the final stratified holdout outside that search and evaluates it with continuous probabilities.
 
 ## Artifact schemas
 
@@ -78,3 +84,5 @@ Experiment runners write only their figures into `output_dir` and return typed r
 - [`schemas/metrics.schema.json`](../schemas/metrics.schema.json)
 
 Schema version `1.0` is part of the public compatibility contract. Removing or changing required fields requires a major version.
+
+New v1.1 metrics artifacts include an optional `config` object with the auditable model and search setup. It remains optional in the schema so artifacts produced by v1.0 continue to validate.

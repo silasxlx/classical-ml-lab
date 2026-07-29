@@ -16,7 +16,15 @@
   ],
   "properties": {
     "schema_version": { "const": "1.0" },
-    "experiment": { "enum": ["decision-tree", "random-forest", "adaboost", "svm"] },
+    "experiment": {
+      "enum": [
+        "decision-tree",
+        "random-forest",
+        "adaboost",
+        "svm",
+        "logistic-regression"
+      ]
+    },
     "task": { "enum": ["binary_classification", "multiclass_classification"] },
     "dataset": {
       "type": "object",
@@ -55,6 +63,9 @@
     },
     "cross_validation": {
       "oneOf": [{ "type": "null" }, { "type": "object" }]
+    },
+    "config": {
+      "type": "object"
     }
   }
 }

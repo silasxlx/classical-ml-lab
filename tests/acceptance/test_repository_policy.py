@@ -51,6 +51,9 @@ def test_api_docs_cover_public_commands_and_functions() -> None:
         "run_random_forest",
         "run_adaboost",
         "run_svm",
+        "logistic-regression",
+        "build_logistic_regression_search",
+        "run_logistic_regression",
     ):
         assert symbol in api
     assert "Educational use only" in build_parser().format_help() or "machine-learning" in api
@@ -94,9 +97,23 @@ def test_version_and_release_policy_use_semver() -> None:
     changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
     contributing = (PROJECT_ROOT / "CONTRIBUTING.md").read_text(encoding="utf-8")
     pyproject = (PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8")
+    lockfile = (PROJECT_ROOT / "uv.lock").read_text(encoding="utf-8")
     assert "## [Unreleased]" in changelog
     assert "SemVer" in contributing
     assert 'name = "cz_conventional_commits"' in pyproject
+    assert __version__ == "1.1.0"
+    assert pyproject.count('version = "1.1.0"') == 2
+    assert re.search(
+        r'\[\[package\]\]\s+name = "classical-ml-lab"\s+version = "1.1.0"', lockfile
+    )
+    assert "## [1.1.0]" in changelog
+
+
+@pytest.mark.acceptance
+def test_readme_documents_the_fifth_experiment() -> None:
+    readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
+    for phrase in ("五个实验", "Logistic Regression", "logistic-regression"):
+        assert phrase in readme
 
 
 @pytest.mark.acceptance
