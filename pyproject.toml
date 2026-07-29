@@ -22,23 +22,23 @@ classifiers = [
 dependencies = [
   "matplotlib>=3.8,<4",
   "numpy>=1.26,<3",
-  "pandas>=2.2,<3",
-  "scikit-learn>=1.5,<1.8",
+  "pandas>=2.2,<4",
+  "scikit-learn>=1.5,<1.10",
 ]
 
 [project.optional-dependencies]
 dev = [
   "commitizen>=4.2,<5",
   "hypothesis>=6.125,<7",
-  "ipykernel>=6.29,<7",
+  "ipykernel>=6.29,<8",
   "jsonschema>=4.23,<5",
-  "mypy>=1.14,<2",
+  "mypy>=1.14,<3",
   "nbclient>=0.10,<1",
   "nbformat>=5.10,<6",
-  "pandas-stubs>=2.2,<3",
+  "pandas-stubs>=2.2,<4",
   "pip-audit>=2.7,<3",
   "pytest>=9.0.3,<10",
-  "pytest-cov>=6,<7",
+  "pytest-cov>=6,<8",
   "pytest-socket>=0.7,<1",
   "ruff>=0.9,<1",
   "vulture>=2.14,<3",
