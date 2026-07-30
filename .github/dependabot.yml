@@ -6,6 +6,10 @@ updates:
     schedule:
       interval: weekly
     versioning-strategy: increase-if-necessary
+    # Major upgrades are reviewed deliberately; Dependabot security updates remain unaffected.
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       production-minor-patch:
         patterns: ["*"]
