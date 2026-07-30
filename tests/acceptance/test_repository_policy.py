@@ -218,6 +218,7 @@ def test_dependabot_uses_native_uv_lockfile_updates() -> None:
 
     assert "package-ecosystem: uv" in config
     assert "versioning-strategy: increase-if-necessary" in config
+    assert 'update-types: ["version-update:semver-major"]' in config
     assert 'patterns: ["github/codeql-action/*"]' in config
     assert "package-ecosystem: pip" not in config
 
