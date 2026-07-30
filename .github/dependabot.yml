@@ -1,9 +1,11 @@
 version: 2
 updates:
-  - package-ecosystem: pip
+  # Use Dependabot's native uv support so pyproject.toml and uv.lock stay synchronized.
+  - package-ecosystem: uv
     directory: "/"
     schedule:
       interval: weekly
+    versioning-strategy: increase-if-necessary
     groups:
       production-minor-patch:
         patterns: ["*"]
@@ -17,3 +19,6 @@ updates:
     directory: "/"
     schedule:
       interval: weekly
+    groups:
+      codeql-actions:
+        patterns: ["github/codeql-action/*"]

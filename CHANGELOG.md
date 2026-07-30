@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+
+- Authentic README previews for clustering, regression diagnostics, data quality, and global SHAP output.
+
+### Changed
+
+- Updated package metadata links to the active `classical-ml-lab` repository.
+- Switched Dependabot from generic pip updates to native uv support so `pyproject.toml` and `uv.lock` stay synchronized.
+
 ## [1.7.0] - 2026-07-29
 
 ### Added

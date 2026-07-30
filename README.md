@@ -75,6 +75,16 @@ uv run --all-extras ml-lab run boosting-all
 
 它们复用 Diabetes 数据、同一 holdout、回归指标和数据质量契约，并额外生成全局/局部 Tree SHAP 图与脱敏 `explanations.json`。SHAP 只描述模型在给定数据上的行为，不代表因果关系、医学依据或临床安全性。
 
+## 结果预览
+
+以下图片由仓库代码在 `seed=42` 下实际生成，分别展示无监督聚类、回归诊断、数据质量和模型解释产物。SHAP 仅描述模型行为，不代表因果关系。
+
+| KMeans 聚类结果 | Ridge 回归诊断 |
+| --- | --- |
+| ![KMeans 在 Iris 花瓣特征上的预测簇与聚类中心](docs/assets/preview-kmeans-clusters.png) | ![Ridge 回归的真实值、预测值与残差诊断](docs/assets/preview-ridge-predictions.png) |
+| **数据质量报告** | **XGBoost 全局 SHAP** |
+| ![特征完整性与目标分布数据质量报告](docs/assets/preview-data-quality.png) | ![XGBoost 特征的全局平均绝对 SHAP 值](docs/assets/preview-shap-global.png) |
+
 ## 输出与可审计性
 
 ```text

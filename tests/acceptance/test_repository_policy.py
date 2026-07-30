@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+import tomllib
 from pathlib import Path
 
 import pytest
@@ -197,3 +198,42 @@ def test_json_schemas_are_parseable_and_versioned() -> None:
         payload = json.loads(path.read_text(encoding="utf-8"))
         assert payload["$schema"].endswith("2020-12/schema")
         assert payload["type"] == "object"
+
+
+@pytest.mark.acceptance
+def test_project_urls_reference_the_active_repository() -> None:
+    with (PROJECT_ROOT / "pyproject.toml").open("rb") as pyproject_file:
+        project_urls = tomllib.load(pyproject_file)["project"]["urls"]
+
+    assert project_urls == {
+        "Homepage": "https://github.com/silasxlx/classical-ml-lab",
+        "Documentation": "https://github.com/silasxlx/classical-ml-lab/tree/main/docs",
+        "Issues": "https://github.com/silasxlx/classical-ml-lab/issues",
+    }
+
+
+@pytest.mark.acceptance
+def test_dependabot_uses_native_uv_lockfile_updates() -> None:
+    config = (PROJECT_ROOT / ".github" / "dependabot.yml").read_text(encoding="utf-8")
+
+    assert "package-ecosystem: uv" in config
+    assert "versioning-strategy: increase-if-necessary" in config
+    assert 'patterns: ["github/codeql-action/*"]' in config
+    assert "package-ecosystem: pip" not in config
+
+
+@pytest.mark.acceptance
+def test_readme_preview_images_are_versioned_and_lightweight() -> None:
+    readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
+    preview_paths = (
+        "docs/assets/preview-kmeans-clusters.png",
+        "docs/assets/preview-ridge-predictions.png",
+        "docs/assets/preview-data-quality.png",
+        "docs/assets/preview-shap-global.png",
+    )
+
+    for relative_path in preview_paths:
+        preview = PROJECT_ROOT / relative_path
+        assert relative_path in readme
+        assert preview.is_file()
+        assert 0 < preview.stat().st_size < 1_000_000
