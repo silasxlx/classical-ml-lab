@@ -63,9 +63,9 @@ dev = [
 ml-lab = "classical_ml_lab.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/silasxlx/machinelearning-blob"
-Documentation = "https://github.com/silasxlx/machinelearning-blob/tree/main/docs"
-Issues = "https://github.com/silasxlx/machinelearning-blob/issues"
+Homepage = "https://github.com/silasxlx/classical-ml-lab"
+Documentation = "https://github.com/silasxlx/classical-ml-lab/tree/main/docs"
+Issues = "https://github.com/silasxlx/classical-ml-lab/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/classical_ml_lab"]
