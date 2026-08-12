@@ -23,14 +23,14 @@ dependencies = [
   "matplotlib>=3.8,<4",
   "numpy>=1.26,<3",
   "pandas>=2.2,<3",
-  "scikit-learn>=1.5,<1.8",
+  "scikit-learn>=1.9.0,<1.10",
 ]
 
 [project.optional-dependencies]
 xgboost = [
   "numba>=0.61.2,<0.62",
   "shap>=0.51,<0.52",
-  "xgboost>=3.0.5,<3.1",
+  "xgboost>=3.2.0,<3.3",
 ]
 lightgbm = [
   "lightgbm>=4.7,<4.8",
@@ -43,19 +43,19 @@ catboost = [
   "shap>=0.51,<0.52",
 ]
 dev = [
-  "commitizen>=4.2,<5",
-  "hypothesis>=6.125,<7",
+  "commitizen>=4.17.0,<5",
+  "hypothesis>=6.165.2,<7",
   "ipykernel>=6.29,<7",
   "jsonschema>=4.23,<5",
   "mypy>=1.14,<2",
   "nbclient>=0.10,<1",
-  "nbformat>=5.10,<6",
+  "nbformat>=5.11.0,<6",
   "pandas-stubs>=2.2,<3",
   "pip-audit>=2.7,<3",
   "pytest>=9.0.3,<10",
   "pytest-cov>=6,<7",
   "pytest-socket>=0.7,<1",
-  "ruff>=0.9,<1",
+  "ruff>=0.16.2,<1",
   "vulture>=2.14,<3",
 ]
 
