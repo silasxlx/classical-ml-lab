@@ -25,6 +25,28 @@ from classical_ml_lab.models import ExperimentResult
 _C_GRID = [0.1, 1.0, 10.0]
 
 
+def _build_l2_classifier(seed: int) -> LogisticRegression:
+    """Build an L2 classifier across scikit-learn's penalty API transition.
+
+    scikit-learn 1.8+ deprecates passing ``penalty="l2"`` explicitly and
+    emits a ``FutureWarning`` that this repository treats as an error.  The
+    new default plus ``l1_ratio=0.0`` has the same L2 semantics, while older
+    supported releases still need the explicit penalty argument.
+    """
+
+    params: dict[str, Any] = {
+        "solver": "liblinear",
+        "class_weight": "balanced",
+        "max_iter": 1000,
+        "random_state": seed,
+    }
+    if LogisticRegression().get_params()["penalty"] == "deprecated":
+        params["l1_ratio"] = 0.0
+    else:
+        params["penalty"] = "l2"
+    return LogisticRegression(**params)
+
+
 def build_logistic_regression_search(seed: int) -> GridSearchCV:
     """Build the public, deterministic search with preprocessing inside CV."""
 
@@ -34,13 +56,7 @@ def build_logistic_regression_search(seed: int) -> GridSearchCV:
             ("scale", StandardScaler()),
             (
                 "classifier",
-                LogisticRegression(
-                    solver="liblinear",
-                    penalty="l2",
-                    class_weight="balanced",
-                    max_iter=1000,
-                    random_state=seed,
-                ),
+                _build_l2_classifier(seed),
             ),
         ]
     )

@@ -23,14 +23,14 @@ dependencies = [
   "matplotlib>=3.8,<4",
   "numpy>=1.26,<3",
   "pandas>=2.2,<3",
-  "scikit-learn>=1.5,<1.8",
+  "scikit-learn>=1.5,<1.10",
 ]
 
 [project.optional-dependencies]
 xgboost = [
   "numba>=0.61.2,<0.62",
   "shap>=0.51,<0.52",
-  "xgboost>=3.0.5,<3.1",
+  "xgboost>=3.0.5,<3.3",
 ]
 lightgbm = [
   "lightgbm>=4.7,<4.8",
@@ -51,6 +51,7 @@ dev = [
   "nbclient>=0.10,<1",
   "nbformat>=5.10,<6",
   "pandas-stubs>=2.2,<3",
+  "pip>=26.2,<27",
   "pip-audit>=2.7,<3",
   "pytest>=9.0.3,<10",
   "pytest-cov>=6,<7",
