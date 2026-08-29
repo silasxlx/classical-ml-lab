@@ -33,7 +33,11 @@ def test_req_exp_lr_001_builds_the_exact_leakage_safe_search() -> None:
     classifier = search.estimator.named_steps["classifier"]
     assert isinstance(classifier, LogisticRegression)
     assert classifier.solver == "liblinear"
-    assert classifier.penalty == "l2"
+    # scikit-learn 1.8+ represents the default L2 penalty as ``deprecated``
+    # and uses l1_ratio=0.0; older supported versions expose ``penalty=l2``.
+    assert classifier.penalty in {"l2", "deprecated"}
+    if classifier.penalty == "deprecated":
+        assert classifier.l1_ratio == 0.0
     assert classifier.class_weight == "balanced"
     assert classifier.max_iter == 1000
     assert classifier.random_state == 42
