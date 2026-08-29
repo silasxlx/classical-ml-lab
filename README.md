@@ -31,6 +31,8 @@ uv run ml-lab run all
 
 第三条命令会自动创建环境、安装锁定的核心依赖，并在 `artifacts/<run-id>/` 下生成九个默认实验的指标、数据质量报告和图表。
 
+> 该离线路径无需 API Key；[v1.7.0 发布说明](https://github.com/silasxlx/classical-ml-lab/releases/tag/v1.7.0)记录了当前实验范围、验证结果和安全边界。
+
 查看或单独运行实验：
 
 ```bash
